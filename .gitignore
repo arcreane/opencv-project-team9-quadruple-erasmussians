@@ -1,0 +1,29 @@
+# build output
+*.o
+*.obj
+output.png
+/out/
+[Bb]uild/
+cmake-build-*/
+
+CMakeCache.txt
+CMakeFiles/
+
+
+# ide
+.vscode/
+.vs/
+.vsix/
+.idea/
+*.user
+*.suo
+
+# os
+.DS_Store
+Thumbs.db
+
+# dll
+*.exe
+*.obj
+*.o
+*.dll
