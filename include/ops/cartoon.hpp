@@ -8,8 +8,8 @@ public:
     cv::Mat apply(const cv::Mat& src) const override;
 
 private:
-    mutable int edgeBlock_ = 9; // adaptiveThreshold block size -> outline thickness
-    mutable int edgeC_     = 2; // adaptiveThreshold C -> how much detail survives
-    mutable int smooth_    = 3; // number of bilateralFilter passes (color flattening)
-    mutable int quant_     = 0; // colour levels per channel; 0/1 = quantization off
+    mutable int edgeBlock_ = 9;
+    mutable int edgeC_     = 2;
+    mutable int smooth_    = 3;
+    mutable int quant_     = 0;
 };
