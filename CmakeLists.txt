@@ -10,30 +10,25 @@ add_executable(myeditor
     src/main.cpp
     src/ops/brightness.cpp
     src/ops/geometry.cpp
+    src/ops/threshold.cpp
+    src/ops/histeq.cpp
+    src/ops/cartoon.cpp
     src/ui/file_dialog.cpp
     )
-
 
 target_include_directories(myeditor PRIVATE
     ${OpenCV_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/include
 )
 
-
 target_link_libraries(myeditor PRIVATE ${OpenCV_LIBS})
 if(WIN32)
-    # Native common dialogs (Open/Save) and the error MessageBox come from these.
     target_link_libraries(myeditor PRIVATE comdlg32 user32)
 
-    # Make MyEditor a double-clickable GUI app: no console window pops up, but we
-    # keep the standard int main() by pointing the linker at the normal CRT entry.
     set_target_properties(myeditor PROPERTIES
         WIN32_EXECUTABLE TRUE
         LINK_FLAGS "/ENTRY:mainCRTStartup")
 
-    # Copy the OpenCV runtime DLL next to the exe so double-clicking works with no
-    # PATH setup. OpenCV_DIR points at ...\x64\vc16\lib, so ..\bin is the DLL dir.
-    # Release bundles opencv_world<ver>.dll; a Debug build bundles the ...d.dll.
     set(_world "opencv_world${OpenCV_VERSION_MAJOR}${OpenCV_VERSION_MINOR}${OpenCV_VERSION_PATCH}")
     add_custom_command(TARGET myeditor POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -41,3 +36,5 @@ if(WIN32)
                 "$<TARGET_FILE_DIR:myeditor>"
         COMMENT "Bundling OpenCV runtime DLL next to myeditor.exe")
 endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
