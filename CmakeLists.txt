@@ -10,8 +10,10 @@ add_executable(myeditor
     src/main.cpp
     src/ops/brightness.cpp
     src/ops/geometry.cpp
+    src/ops/morphology.cpp
+    src/ops/canny.cpp
     src/ui/file_dialog.cpp
-    )
+)
 
 
 target_include_directories(myeditor PRIVATE

@@ -12,6 +12,8 @@
 #include "ops/identity.hpp"
 #include "ops/brightness.hpp"
 #include "ops/geometry.hpp"
+#include "ops/morphology.hpp"
+#include "ops/canny.hpp"
 
 // New implemented features' headers will be added here
 // #include "ops/threshold.hpp"
@@ -78,6 +80,8 @@ int main(int argc, char** argv) {
     g_ops.push_back(std::make_unique<IdentityOp>());
     g_ops.push_back(std::make_unique<BrightnessOp>());
     g_ops.push_back(std::make_unique<GeometryOp>());
+    g_ops.push_back(std::make_unique<MorphologyOp>());  
+    g_ops.push_back(std::make_unique<CannyOp>());       
 
     rebuildPreview();
 
