@@ -13,8 +13,9 @@
 #include "ops/brightness.hpp"
 #include "ops/geometry.hpp"
 
-// New implemented features' headers will be added here
-// #include "ops/threshold.hpp"
+#include "ops/threshold.hpp"
+#include "ops/histeq.hpp"
+#include "ops/cartoon.hpp"
 
 namespace {
 
@@ -29,7 +30,6 @@ namespace {
     std::vector<std::unique_ptr<Operation>> g_ops;
     int g_mode = 0;   //index of active operation 
 
-// Rebuild the fast preview from the current full-resolution image. so that 'o' can swap images live.
     void rebuildPreview() {
     g_previewScale = std::min(
         1.0, static_cast<double>(kPreviewMaxDim) /
@@ -78,6 +78,9 @@ int main(int argc, char** argv) {
     g_ops.push_back(std::make_unique<IdentityOp>());
     g_ops.push_back(std::make_unique<BrightnessOp>());
     g_ops.push_back(std::make_unique<GeometryOp>());
+    g_ops.push_back(std::make_unique<ThresholdOp>());
+    g_ops.push_back(std::make_unique<HistEqOp>());
+    g_ops.push_back(std::make_unique<CartoonOp>());
 
     rebuildPreview();
 
@@ -103,7 +106,6 @@ int main(int argc, char** argv) {
                 static_cast<int>(g_ops.size());
             rebuildControls();
         } else if (key == 'o') {
-            // Open a different image at runtime, no restart needed.
             if (ui::openImage(g_original)) { rebuildPreview(); render(); }
         } else if (key == 's') {
             saveResult();
