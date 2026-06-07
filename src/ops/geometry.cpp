@@ -8,6 +8,9 @@ void GeometryOp::setupTrackbars(const std::string& win) {
     // Mode selector sits in the Controls window like every other op.
     cv::createTrackbar("Mode 0Aff 1Persp", win, &mode_, 1, appTrackbarCb);
 
+    
+    cv::setMouseCallback(appMainWindow(), &GeometryOp::onMouse, this);
+}
 
 void GeometryOp::onMouse(int event, int x, int y, int /*flags*/, void* userdata) {
     auto* self = static_cast<GeometryOp*>(userdata);
