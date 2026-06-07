@@ -13,6 +13,8 @@ add_executable(myeditor
     src/ops/morphology.cpp
     src/ops/canny.cpp
     src/ui/file_dialog.cpp
+    src/ops/unsharpmask.cpp
+    src/ops/pencilsketch.cpp
 )
 
 

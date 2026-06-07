@@ -14,8 +14,10 @@
 #include "ops/geometry.hpp"
 #include "ops/morphology.hpp"
 #include "ops/canny.hpp"
+#include "ops/unsharpmask.hpp"
+#include "ops/pencilsketch.hpp"
 
-// New implemented features' headers will be added here
+
 // #include "ops/threshold.hpp"
 
 namespace {
@@ -81,7 +83,9 @@ int main(int argc, char** argv) {
     g_ops.push_back(std::make_unique<BrightnessOp>());
     g_ops.push_back(std::make_unique<GeometryOp>());
     g_ops.push_back(std::make_unique<MorphologyOp>());  
-    g_ops.push_back(std::make_unique<CannyOp>());       
+    g_ops.push_back(std::make_unique<CannyOp>());     
+    g_ops.push_back(std::make_unique<UnsharpMaskOp>());
+    g_ops.push_back(std::make_unique<PencilSketchOp>());  
 
     rebuildPreview();
 
