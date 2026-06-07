@@ -10,6 +10,7 @@ add_executable(myeditor
     src/main.cpp
     src/ops/brightness.cpp
     src/ops/geometry.cpp
+    src/ui/file_dialog.cpp
     )
 
 
