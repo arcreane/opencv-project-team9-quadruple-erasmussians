@@ -8,8 +8,10 @@
 #include "operation.hpp"
 #include "app.hpp"
 
+
 #include "ops/identity.hpp"
 #include "ops/brightness.hpp"
+#include "ops/geometry.hpp"
 
 // New implemented features' headers will be added here
 // #include "ops/threshold.hpp"
@@ -73,6 +75,7 @@ int main(int argc, char** argv) {
     
     g_ops.push_back(std::make_unique<IdentityOp>());
     g_ops.push_back(std::make_unique<BrightnessOp>());
+    g_ops.push_back(std::make_unique<GeometryOp>()); 
 
     g_previewScale = std::min(
         1.0, static_cast<double>(kPreviewMaxDim) /
