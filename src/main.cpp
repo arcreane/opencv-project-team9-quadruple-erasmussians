@@ -7,7 +7,7 @@
 
 #include "operation.hpp"
 #include "app.hpp"
-
+#include "ui/file_dialog.hpp"
 
 #include "ops/identity.hpp"
 #include "ops/brightness.hpp"
@@ -29,6 +29,15 @@ namespace {
     std::vector<std::unique_ptr<Operation>> g_ops;
     int g_mode = 0;   //index of active operation 
 
+// Rebuild the fast preview from the current full-resolution image. so that 'o' can swap images live.
+    void rebuildPreview() {
+    g_previewScale = std::min(
+        1.0, static_cast<double>(kPreviewMaxDim) /
+                 std::max(g_original.cols, g_original.rows));
+    cv::resize(g_original, g_preview, cv::Size(), g_previewScale, g_previewScale,
+               cv::INTER_AREA);
+    }
+
     void render() {
         if (g_preview.empty()) return;
         cv::Mat out = g_ops[g_mode]->apply(g_preview);
@@ -48,12 +57,7 @@ namespace {
     }
 
     void saveResult() {
-        cv::Mat full = g_ops[g_mode]->apply(g_original);
-        const std::string outPath = "output.png";
-        if (cv::imwrite(outPath, full))
-            std::cout << "Saved full-resolution result to " << outPath << "\n";
-        else
-            std::cerr << "Failed to write " << outPath << "\n";
+         ui::saveImage(g_ops[g_mode]->apply(g_original));
     }
 
 }  
@@ -63,33 +67,29 @@ void appRequestRender() { render(); }
 const char* appMainWindow() { return kMainWindow; }
 
 int main(int argc, char** argv) {
-    const std::string path = (argc > 1) ? argv[1] : "samples/sample.jpg";
 
-    g_original = cv::imread(path, cv::IMREAD_COLOR);
+    if (argc > 1) g_original = ui::loadImage(argv[1]);
+    if (g_original.empty()) ui::openImage(g_original);
     if (g_original.empty()) {
-        std::cerr << "Could not load image: " << path << "\n"
-            << "Usage: myeditor <image-path>\n";
-        return 1;
+        ui::errorBox("No image was opened, so MyEditor will close.");
+        return 0;
     }
 
-    
     g_ops.push_back(std::make_unique<IdentityOp>());
     g_ops.push_back(std::make_unique<BrightnessOp>());
-    g_ops.push_back(std::make_unique<GeometryOp>()); 
+    g_ops.push_back(std::make_unique<GeometryOp>());
 
-    g_previewScale = std::min(
-        1.0, static_cast<double>(kPreviewMaxDim) /
-        std::max(g_original.cols, g_original.rows));
-    cv::resize(g_original, g_preview, cv::Size(), g_previewScale, g_previewScale,
-        cv::INTER_AREA);
+    rebuildPreview();
 
     cv::namedWindow(kMainWindow, cv::WINDOW_AUTOSIZE);
     rebuildControls();
 
     std::cout << "MyEditor ready.\n"
-        << "  n / p : next / previous operation\n"
-        << "  s     : save full-resolution result to output.png\n"
-        << "  q/ESC : quit\n";
+              << "  o     : open an image\n"
+              << "  n / p : next / previous operation\n"
+              << "  s     : save full-resolution result to output.png\n"
+              << "  s     : save (choose location)\n"
+              << "  q/ESC : quit\n";
 
     for (;;) {
         const int key = cv::waitKey(20) & 0xFF;
@@ -102,8 +102,10 @@ int main(int argc, char** argv) {
             g_mode = (g_mode - 1 + static_cast<int>(g_ops.size())) %
                 static_cast<int>(g_ops.size());
             rebuildControls();
-        }
-        else if (key == 's') {
+        } else if (key == 'o') {
+            // Open a different image at runtime, no restart needed.
+            if (ui::openImage(g_original)) { rebuildPreview(); render(); }
+        } else if (key == 's') {
             saveResult();
         }
     }
