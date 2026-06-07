@@ -10,11 +10,15 @@ add_executable(myeditor
     src/main.cpp
     src/ops/brightness.cpp
     src/ops/geometry.cpp
+    src/ops/morphology.cpp
+    src/ops/canny.cpp
     src/ops/threshold.cpp
     src/ops/histeq.cpp
     src/ops/cartoon.cpp
     src/ui/file_dialog.cpp
-    )
+    src/ops/unsharpmask.cpp
+    src/ops/pencilsketch.cpp
+)
 
 target_include_directories(myeditor PRIVATE
     ${OpenCV_INCLUDE_DIRS}

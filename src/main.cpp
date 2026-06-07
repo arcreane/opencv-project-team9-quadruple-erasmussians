@@ -12,6 +12,11 @@
 #include "ops/identity.hpp"
 #include "ops/brightness.hpp"
 #include "ops/geometry.hpp"
+#include "ops/morphology.hpp"
+#include "ops/canny.hpp"
+#include "ops/unsharpmask.hpp"
+#include "ops/pencilsketch.hpp"
+
 
 #include "ops/threshold.hpp"
 #include "ops/histeq.hpp"
@@ -78,6 +83,10 @@ int main(int argc, char** argv) {
     g_ops.push_back(std::make_unique<IdentityOp>());
     g_ops.push_back(std::make_unique<BrightnessOp>());
     g_ops.push_back(std::make_unique<GeometryOp>());
+    g_ops.push_back(std::make_unique<MorphologyOp>());  
+    g_ops.push_back(std::make_unique<CannyOp>());     
+    g_ops.push_back(std::make_unique<UnsharpMaskOp>());
+    g_ops.push_back(std::make_unique<PencilSketchOp>());  
     g_ops.push_back(std::make_unique<ThresholdOp>());
     g_ops.push_back(std::make_unique<HistEqOp>());
     g_ops.push_back(std::make_unique<CartoonOp>());

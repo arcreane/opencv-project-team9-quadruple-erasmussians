@@ -1,3 +1,4 @@
+#pragma once
 #include "ops/brightness.hpp"
 #include "app.hpp"
 

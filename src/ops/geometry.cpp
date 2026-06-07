@@ -17,7 +17,6 @@ void GeometryOp::onMouse(int event, int x, int y, int /*flags*/, void* userdata)
     if (self->shownSize_.width <= 0) return;        // nothing rendered yet: scale unknown
 
     if (event == cv::EVENT_LBUTTONDOWN) {
-
         if (static_cast<int>(self->ptsNorm_.size()) < neededPoints(self->mode_)) {
             self->ptsNorm_.emplace_back(
                 x / static_cast<float>(self->shownSize_.width),
@@ -33,7 +32,7 @@ void GeometryOp::onMouse(int event, int x, int y, int /*flags*/, void* userdata)
 cv::Mat GeometryOp::apply(const cv::Mat& src) const {
     const int W = src.cols, H = src.rows;
     shownSize_ = src.size();
-    const int need = neededPoints(mode_);                         // record scale for the callback
+    const int need = neededPoints(mode_);
 
     std::vector<cv::Point2f> pts;
     pts.reserve(ptsNorm_.size());
@@ -52,7 +51,7 @@ cv::Mat GeometryOp::apply(const cv::Mat& src) const {
             : "Perspective: click 4 pts (TL,TR,BR,BL). Right-click=reset.";
         cv::putText(out, hint, {10, 24}, cv::FONT_HERSHEY_SIMPLEX, 0.55,
                     cv::Scalar(0, 0, 255), 2);
-        return out;                                  // already BGR
+        return out;
     }
 
     cv::Mat out;
@@ -67,5 +66,5 @@ cv::Mat GeometryOp::apply(const cv::Mat& src) const {
         cv::Mat M = cv::getPerspectiveTransform(srcQuad, dstQuad);
         cv::warpPerspective(src, out, M, src.size());
     }
-    return out;                                      
+    return out;
 }
