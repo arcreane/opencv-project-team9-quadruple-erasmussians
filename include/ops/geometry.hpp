@@ -11,6 +11,7 @@ public:
 private:
     static void onMouse(int event, int x, int y, int flags, void* userdata);
 
+    int mode_ = 0;
     std::vector<cv::Point2f> ptsNorm_;   
     mutable cv::Size shownSize_{0, 0};   
 };
