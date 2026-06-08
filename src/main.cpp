@@ -24,6 +24,8 @@
 #include "ops/histeq.hpp"
 #include "ops/cartoon.hpp"
 
+#include "ops/white_balance.hpp"
+
 namespace {
 
     const char* kMainWindow = "MyEditor";
@@ -117,6 +119,7 @@ int main(int argc, char** argv) {
     g_ops.push_back(std::make_unique<IdentityOp>());
     g_ops.push_back(std::make_unique<BrightnessOp>());
     g_ops.push_back(std::make_unique<GeometryOp>());
+    g_ops.push_back(std::make_unique<AutoWhiteBalanceOp>());
     g_ops.push_back(std::make_unique<MorphologyOp>());  
     g_ops.push_back(std::make_unique<CannyOp>());     
     g_ops.push_back(std::make_unique<UnsharpMaskOp>());
