@@ -35,6 +35,8 @@ namespace {
 
     std::vector<std::unique_ptr<Operation>> g_ops;
     int g_mode = 0;   //index of active operation 
+    int g_pickerPos   = 0;    // backing value for the "Operation" trackbar
+    int g_pendingMode = -1; // set by onPickOp, consumed (and cleared) in the loop      
 
     void rebuildPreview() {
     g_previewScale = std::min(
@@ -53,6 +55,8 @@ namespace {
                         static_cast<int>(g_ops.size()));
         cv::imshow(kMainWindow, out);
     }
+
+    void onPickOp(int pos, void*) { g_pendingMode = pos; }
 
     void rebuildControls() {
         static bool created = false;
@@ -104,6 +108,9 @@ int main(int argc, char** argv) {
     cv::namedWindow(kMainWindow, cv::WINDOW_AUTOSIZE);
     rebuildControls();
 
+    cv::createTrackbar("Operation", kMainWindow, &g_pickerPos,
+                       static_cast<int>(g_ops.size()) - 1, onPickOp);
+
     std::cout << "MyEditor ready.\n"
               << "  o     : open an image\n"
               << "  n / p : next / previous operation\n"
@@ -112,16 +119,24 @@ int main(int argc, char** argv) {
               << "  q/ESC : quit\n";
 
     for (;;) {
+        if (g_pendingMode >= 0) {
+            const int target = g_pendingMode;
+            g_pendingMode = -1;
+            if (target != g_mode) { g_mode = target; rebuildControls(); }
+        }
+
         const int key = cv::waitKey(20) & 0xFF;
         if (key == 'q' || key == 27) break;
         if (key == 'n') {
             g_mode = (g_mode + 1) % static_cast<int>(g_ops.size());
             rebuildControls();
+            cv::setTrackbarPos("Operation", kMainWindow, g_mode);  // keep slider in sync
         }
         else if (key == 'p') {
             g_mode = (g_mode - 1 + static_cast<int>(g_ops.size())) %
                 static_cast<int>(g_ops.size());
             rebuildControls();
+            cv::setTrackbarPos("Operation", kMainWindow, g_mode);  // keep slider in sync
         } else if (key == 'o') {
             if (ui::openImage(g_original)) { rebuildPreview(); render(); }
         } else if (key == 's') {
