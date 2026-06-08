@@ -1,5 +1,6 @@
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -38,6 +39,15 @@ namespace {
     int g_pickerPos   = 0;    // backing value for the "Operation" trackbar
     int g_pendingMode = -1; // set by onPickOp, consumed (and cleared) in the loop      
 
+    // Transient confirmation toast (e.g. after Save / Open). render() draws it while
+    // active; the loop erases it once it expires.
+    std::string g_toast;
+    std::chrono::steady_clock::time_point g_toastUntil{};
+
+    bool toastActive() {
+        return !g_toast.empty() && std::chrono::steady_clock::now() < g_toastUntil;
+    }
+
     void rebuildPreview() {
     g_previewScale = std::min(
         1.0, static_cast<double>(kPreviewMaxDim) /
@@ -53,10 +63,21 @@ namespace {
         // saveResult() writes  so the full-resolution save stays clean.
         ui::drawStatusBar(out, g_ops[g_mode]->name(), g_mode,
                         static_cast<int>(g_ops.size()));
+
+        if (toastActive()) ui::drawToast(out, g_toast);
         cv::imshow(kMainWindow, out);
     }
 
     void onPickOp(int pos, void*) { g_pendingMode = pos; }
+
+    // Show a brief confirmation message and refresh so it appears immediately. The
+    // loop clears it once g_toastUntil passes.
+    void setToast(const std::string& msg) {
+        g_toast = msg;
+        g_toastUntil = std::chrono::steady_clock::now() + std::chrono::milliseconds(1500);
+        render();
+    }
+
 
     void rebuildControls() {
         static bool created = false;
@@ -74,7 +95,8 @@ namespace {
 }
 
     void saveResult() {
-         ui::saveImage(g_ops[g_mode]->apply(g_original));
+        // pick where to save via a native "Save As" dialog. Confirm on screen,
+        if (ui::saveImage(g_ops[g_mode]->apply(g_original))) setToast("Saved");
     }
 
 }  
@@ -117,6 +139,8 @@ int main(int argc, char** argv) {
               << "  s     : save full-resolution result to output.png\n"
               << "  s     : save (choose location)\n"
               << "  q/ESC : quit\n";
+    
+    bool toastWasVisible = false;
 
     for (;;) {
         if (g_pendingMode >= 0) {
@@ -124,6 +148,10 @@ int main(int argc, char** argv) {
             g_pendingMode = -1;
             if (target != g_mode) { g_mode = target; rebuildControls(); }
         }
+        //erase the toast once it expires
+        const bool toastNow = toastActive();
+        if (toastWasVisible && !toastNow) render();
+        toastWasVisible = toastNow;
 
         const int key = cv::waitKey(20) & 0xFF;
         if (key == 'q' || key == 27) break;
@@ -138,7 +166,7 @@ int main(int argc, char** argv) {
             rebuildControls();
             cv::setTrackbarPos("Operation", kMainWindow, g_mode);  // keep slider in sync
         } else if (key == 'o') {
-            if (ui::openImage(g_original)) { rebuildPreview(); render(); }
+            if (ui::openImage(g_original)) { rebuildPreview(); setToast("Opened"); }
         } else if (key == 's') {
             saveResult();
         }
