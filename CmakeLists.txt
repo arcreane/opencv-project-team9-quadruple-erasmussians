@@ -16,6 +16,7 @@ add_executable(myeditor
     src/ops/histeq.cpp
     src/ops/cartoon.cpp
     src/ui/file_dialog.cpp
+    src/ui/hud.cpp
     src/ops/unsharpmask.cpp
     src/ops/pencilsketch.cpp
 )
