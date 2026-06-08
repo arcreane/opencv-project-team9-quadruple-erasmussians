@@ -19,6 +19,7 @@ add_executable(myeditor
     src/ui/hud.cpp
     src/ops/unsharpmask.cpp
     src/ops/pencilsketch.cpp
+    src/ops/white_balance.cpp
 )
 
 target_include_directories(myeditor PRIVATE
