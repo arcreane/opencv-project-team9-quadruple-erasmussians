@@ -8,6 +8,7 @@
 #include "operation.hpp"
 #include "app.hpp"
 #include "ui/file_dialog.hpp"
+#include "ui/hud.hpp"
 
 #include "ops/identity.hpp"
 #include "ops/brightness.hpp"
@@ -46,6 +47,10 @@ namespace {
     void render() {
         if (g_preview.empty()) return;
         cv::Mat out = g_ops[g_mode]->apply(g_preview);
+        // The HUD is display-only. drawn on the shown copy here, never on the image
+        // saveResult() writes  so the full-resolution save stays clean.
+        ui::drawStatusBar(out, g_ops[g_mode]->name(), g_mode,
+                        static_cast<int>(g_ops.size()));
         cv::imshow(kMainWindow, out);
     }
 
