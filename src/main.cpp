@@ -62,9 +62,12 @@ namespace {
         created = true;
         g_ops[g_mode]->setupTrackbars(kControlsWindow);
         cv::setWindowTitle(kMainWindow,
-            std::string("MyEditor  -  ") + g_ops[g_mode]->name());
+                       std::string("MyEditor  -  ") + g_ops[g_mode]->name());
+                       std::string("MyEditor  -  ") + std::to_string(g_mode + 1) +
+                       "/" + std::to_string(g_ops.size()) + "  " +
+                       g_ops[g_mode]->name());
         render();
-    }
+}
 
     void saveResult() {
          ui::saveImage(g_ops[g_mode]->apply(g_original));
