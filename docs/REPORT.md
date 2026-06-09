@@ -121,6 +121,8 @@ This tool straightens or re-projects an image from points you click on it. In af
 
 Stitching blends two overlapping photos into one wide image. Because the editor works on one open picture at a time. We load the second image on demand. Sliding the trigger control opens a file dialog. Then once a second picture is in we hand both to OpenCV's `Stitcher` in panorama mode (which finds matching features, estimates the geometry and blends the seams) . Stitching fails for honest reasons (too little overlap, not enough texture) so we read the status code back and show a clear message instead of crashing: "need more images", "no overlap or features found", and so on. If the two images are different sizes we resize the second to match before stitching.
 
+>![[panorama.png]]
+
 ---
 
 ## 6. The Features We Added
@@ -156,6 +158,8 @@ The cartoon look is two effects combined. First we flatten colour with several p
 ### 6.6 Flood Fill (Magic Wand) — *Chieh*
 
 This is the "magic wand" from any paint program: click a spot and a connected region of similar colour gets filled. We use `floodFill` in fixed-range mode, where the upper and lower tolerance sliders decide how far the fill spreads from the clicked colour, and a colour picker sets the fill. The seed point comes from a mouse click on the canvas. Each fill is committed to the undo history, so you can try a click, undo it, and try again with a wider tolerance.
+
+> ![[floodfill.png]]
 
 
 ### 6.7 Brightness and Contrast — *Yigit*
