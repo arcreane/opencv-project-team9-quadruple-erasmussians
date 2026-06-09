@@ -2,7 +2,6 @@
 #include "ops/brightness.hpp"
 #include "app.hpp"
 
-
 void BrightnessOp::setupTrackbars(const std::string& win) {
     cv::createTrackbar("Brightness", win, &brightness_, 200, appTrackbarCb);
     cv::createTrackbar("Contrast", win, &contrast_, 200, appTrackbarCb);
