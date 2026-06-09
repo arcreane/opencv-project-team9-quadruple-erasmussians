@@ -1,9 +1,9 @@
-# MyEditor — a small image editor built on OpenCV
+# MyEditor — A Small Image Editor Built On OpenCV
 
 **Multimedia Application · Final Project**
 Team 9 — *Quadruple Erasmussians*
 
-**Authors:** Yigit Dagidir · Ilayda Baburoglu  · Sevil Begum Gurcan · - PinChieh HO
+**Authors:** Yigit Dagidir 64423 · Ilayda Baburoglu 64421  · Sevil Begum Gurcan 64427 · PinChieh Ho 64429
 
 
 ---
@@ -18,7 +18,7 @@ This report explains what we chose to build and why. It covers the OpenCV functi
 
 ---
 
-## 2. What MyEditor does
+## 2. What MyEditor Does
 
 When you launch the program it asks for an image straight away (you can also pass a path on the command line). Once a picture is loaded you get two windows: the main canvas with the image on it, and a small **Controls** window holding the sliders for whatever operation is currently selected.
 
@@ -43,7 +43,7 @@ The whole thing is keyboard-light: open (`o`), apply (`a`), undo/redo (`u`/`r`),
 
 ---
 
-## 3. Choosing the interface
+## 3. Choosing The Interface
 
 We went with **OpenCV's own HighGUI** with its windows, trackbars and mouse callbacks. We prefered it rather than Qt. This was a real decision with real trade-offs, so it is worth explaining.
 
@@ -55,9 +55,9 @@ Qt was the recommended choice and would have given us a far nicer-looking progra
 
 ---
 
-## 4. How the program is put together
+## 4. How the Program is Put Together
 
-### 4.1 One idea: every tool is an "Operation"
+### 4.1 One idea: Every Tool is an "Operation"
 
 The core of the design is a single small interface that every tool implements. An *Operation* knows three things: its name, how to set up its own sliders in the Controls window and how to apply itself to an image (take a picture in, return the processed picture out). A fourth, smaller flag tells the app whether a tool manages its own undo history, which matters for the click driven tools.
 
@@ -65,7 +65,7 @@ Everything else is built around this architecture. The application keeps a list 
 
 This was the decision that made the teamwork possible. Because each operation lives in its own file behind the same interface, four people could write four features at the same time without stepping on each other. It also kept the git history clean: a feature is almost always one file, so it is obvious from a commit who wrote what.
 
-### 4.2 The pieces around it
+### 4.2 The Pieces Around It
 
 > ![[architecture.png]]
 
@@ -77,7 +77,7 @@ The **HUD layer** (the status bar and the fade-in messages) is display only. It 
 
 The **file dialogs** are wrapped behind two functions, open and save, with three implementations underneath: the native Windows dialogs (`GetOpenFileNameW` / `GetSaveFileNameW`), an AppleScript call on macOS through `osascript`, and a plain fallback elsewhere. One hardness we hit early: reading an image straight from a path breaks on non-Latin characters, which is common on the machines we were using. We solved it by reading the file into a byte buffer ourselves and handing that to `imdecode`, and by writing with `imencode` plus a normal file write. That keeps Unicode paths working and keeps the OS specific code small.
 
-### 4.3 The data we keep
+### 4.3 The Data We Keep
 
 The working image is a single colour `Mat`. To stay responsive, the preview is a downscaled copy: we cap the longest side at 720 pixels because recomputing a filter on a 24 megapixel photo every time a slider changes would make the program laggy(unresponsive). Each operation holds its own little bundle of parameters — threshold values, kernel sizes, blur radii — bound to its sliders.
 
@@ -123,42 +123,42 @@ Stitching blends two overlapping photos into one wide image. Because the editor 
 
 ---
 
-## 6. The features we added
+## 6. The Features We Added
 
 The brief wanted at least two advanced features and asked that every member own one. We ended up with seven, partly because the Operation interface made each one cheap to add once the shell existed. They span filters, creative effects and interactive tools.
 
-### 6.1 Automatic white balance — *Yiğit*
+### 6.1 Automatic White Balance — *Yigit*
 
 This removes a colour cast so whites look white. We implemented two methods. **Gray-world** assumes the whole scene should average out to neutral, measures each channel's mean with `mean`, and scales the channels with `convertTo` until they line up; a warm indoor photo cools back to neutral. **Simple white balance** stretches each channel after ignoring a small percentage of the darkest and brightest pixels, so a few stray hot pixels don't throw it off. Where OpenCV's `xphoto` contrib module is available we use its `SimpleWB`; where it isn't, we fall back to our own version built on `calcHist`. That fallback was a deliberate portability choice. It means the feature works even on an OpenCV build without the extra modules, which not everyone had installed. A strength slider blends the corrected image back towards the original with `addWeighted`, so you can dial the effect down if it overshoots.
 
 > ![[autowb,.png]]
 
-### 6.2 Undo / redo — *Yiğit*
+### 6.2 Undo / Redo — *Yigit*
 
 Covered in the architecture section, this is the interactive feature that ties the others together. The model is the snapshot stack described above with one design point worth repeating: because previews are non-destructive, "undo" only means something once an edit is committed, so we made `a` (apply) the explicit step that bakes the current effect in and records it. This was the part we reworked most recently. An earlier version recorded history for only one tool, so undo appeared to do nothing for the rest. It now genuinely steps backwards and forwards through applied edits.
 
-### 6.3 Unsharp mask — *Sevil*
+### 6.3 Unsharp Mask — *Sevil*
 
 It is the photographer's sharpening trick rather than a naive edge boost. We blur a copy of the image with `GaussianBlur`, subtract it from the original to isolate the fine detail, and add that detail back with `addWeighted`. The strength slider controls how much detail is added and the radius controls the blur, so we can can sharpen fine texture or broad edges. Doing it this way avoids amplifying single-pixel noise the way a plain high-pass filter would.
 
-### 6.4 Pencil sketch — *Sevil*
+### 6.4 Pencil Sketch — *Sevil*
 
 It is a quick artistic effect using OpenCV's `pencilSketch`, which produces both a grey graphite look and a softer coloured pencil version from the same call. We expose both modes and the line-thickness control. It is a small feature but it shows off the non photographic side of the editor.
 
 > ![[pencil_sketch.png]]
 
-### 6.5 Cartoon — *İlayda*
+### 6.5 Cartoon — *Ilayda*
 
 The cartoon look is two effects combined. First we flatten colour with several passes of `bilateralFilter`, which smooths areas while keeping edges crisp, and then quantise the colours through a lookup table (`LUT`) so the image reads as flat cartoon shading rather than smooth gradients. Separately we find bold outlines on a grey, median-blurred copy with `adaptiveThreshold`. Laying the black outlines over the flattened colour with `bitwise_and` gives the final comic-strip result. The first attempt smoothed the whole picture into mush; the bilateral filter and the separate edge pass were what made it look intentional.
 
 > ![[cartoon.png]]
 
-### 6.6 Flood fill (magic wand) — *Chieh*
+### 6.6 Flood Fill (Magic Wand) — *Chieh*
 
 This is the "magic wand" from any paint program: click a spot and a connected region of similar colour gets filled. We use `floodFill` in fixed-range mode, where the upper and lower tolerance sliders decide how far the fill spreads from the clicked colour, and a colour picker sets the fill. The seed point comes from a mouse click on the canvas. Each fill is committed to the undo history, so you can try a click, undo it, and try again with a wider tolerance.
 
 
-### 6.7 Brightness and contrast — *Yiğit*
+### 6.7 Brightness and Contrast — *Yigit*
 
 The simplest tool, and the one we wrote first to prove the shell worked. It is a linear adjustment through `convertTo` — contrast scales the pixel values, brightness shifts them. We kept it because it is genuinely useful and it doubles as the "hello world" that every later operation was modelled on.
 
@@ -166,7 +166,7 @@ The simplest tool, and the one we wrote first to prove the shell worked. It is a
 
 ---
 
-## 7. Working as a team
+## 7. Working as a Team
 
 Our workflow was feature branches and pull requests on the GitHub Classroom repository. Branches were named after the feature and its issue. For example `6-corefunctions-Panorama-Stitching`, `13-advanced-feature-automatic-white-balance`, and `16-enhance-ui-and-ux` — and merged into `main` through reviewed pull requests (#17 through #20 among them). Keeping one feature per branch and, usually, one feature per file meant merges rarely conflicted, and it kept each person's contribution legible in the history.
 
@@ -176,20 +176,20 @@ Our toolchain was deliberately ordinary: Git and GitHub for collaboration, CMake
 
 ---
 
-## 8. Who built what
+## 8. Who Built What
 
 | Member                 | Core features                        | Advanced features                                    | Other                                                                                                    |
 | ---------------------- | ------------------------------------ | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | **Yiğit Dağıdır**      | Geometric transforms                 | Auto white balance, undo/redo, brightness & contrast | Application shell & event loop, operation picker, HUD (status bar + toasts), cross-platform file dialogs |
-| **Ilayda Baburoglu**   | Thresholding, histogram equalisation | Cartoon                                              | —                                                                                                        |
-| **Sevil Begum Gurcan** | Morphology, Canny edge detection     | Unsharp mask, pencil sketch                          | —                                                                                                        |
+| **Ilayda Baburoglu**   | Thresholding, histogram equalisation | Cartoon                                              | Presentation, Report and Comments                                                                        |
+| **Sevil Begum Gurcan** | Morphology, Canny edge detection     | Unsharp mask, pencil sketch                          | Comments                                                                                                 |
 | **- PinChieh HO**      | Panorama / stitching                 | Flood fill (magic wand)                              | Cross-platform / build testing                                                                           |
 
 Every member owns at least one advanced feature. The work divides cleanly along the operation files, which the commit history reflects.
 
 ---
 
-## 9. What is still rough, and what we would do next
+## 9. What is Still Rough? and What We Would Do Next?
 
 We would rather be straight about the weak spots than pretend they aren't there.
 
