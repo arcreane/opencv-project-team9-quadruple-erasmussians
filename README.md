@@ -74,7 +74,7 @@ samples/            # test images
 Core: Thresholding · Histogram Equalization · Morphology · Canny Edge
 Detection · Geometric Transforms · Panorama / Stitching.
 
-Advanced: Automatic White Balance · Cartoon Effect.
+Advanced: Automatic White Balance · Cartoon Effect · Flood Fill.
 
 ### Implemented — notes for the report
 
