@@ -21,6 +21,7 @@ add_executable(myeditor
     src/ops/pencilsketch.cpp
     src/ops/white_balance.cpp
     src/ops/stitching.cpp
+    src/ops/floodfill.cpp
 )
 
 target_include_directories(myeditor PRIVATE
