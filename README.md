@@ -107,4 +107,4 @@ Advanced: Automatic White Balance · Cartoon Effect.
 - Yigit Dagidir
 - Ilayda Baburoglu
 - Sevil Begum Gurcan
-- Emily 
+- PinChieh HO

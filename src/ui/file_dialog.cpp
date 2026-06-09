@@ -97,21 +97,79 @@ void errorBox(const std::string& message) {
 
 }  //namespace ui
 
-#else  # non-windows fallback
+#else  // non-windows fallback
 #include <iostream>
+#include <array>
+#include <memory>
 
 namespace ui {
 
-bool openImage(cv::Mat&) {
-    std::cerr << "Open dialog is Windows-only; pass an image path on the command line.\n";
+bool openImage(cv::Mat& out) {
+#ifdef __APPLE__
+    // Call AppleScript to open a native file dialog on Mac
+    std::string cmd = "osascript -e 'POSIX path of (choose file with prompt \"Select an image file:\" of type {\"public.image\"})' 2>/dev/null";
+    
+    std::array<char, 256> buffer;
+    std::string result;
+    
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+    if (pipe) {
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+            result += buffer.data();
+        }
+    }
+    
+    if (!result.empty() && result.back() == '\n') {
+        result.pop_back();
+    }
+    
+    if (!result.empty()) {
+        cv::Mat img = decodeImageFile(std::filesystem::path(result));
+        if (!img.empty()) {
+            out = img;
+            return true;
+        }
+    }
     return false;
+#else
+    std::cerr << "Open dialog is Linux-only; pass an image path on the command line.\n";
+    return false;
+#endif
 }
 
 bool saveImage(const cv::Mat& img) {
     if (img.empty()) return false;
+
+#ifdef __APPLE__
+    // Call AppleScript to open a native save file dialog on Mac
+    std::string cmd = "osascript -e 'POSIX path of (choose file name default name \"panorama.png\" with prompt \"Save image as:\")' 2>/dev/null";
+    
+    std::array<char, 256> buffer;
+    std::string result;
+    
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+    if (pipe) {
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+            result += buffer.data();
+        }
+    }
+    
+    if (!result.empty() && result.back() == '\n') result.pop_back();
+    
+    if (!result.empty()) {
+        const std::filesystem::path path(result);
+        std::string ext = path.extension().string();
+        if (ext.empty()) ext = ".png";
+        std::vector<uchar> bytes;
+        if (!cv::imencode(ext, img, bytes)) return false;
+        return writeFileBytes(path, bytes);
+    }
+    return false;
+#else
     std::vector<uchar> bytes;
     if (!cv::imencode(".png", img, bytes)) return false;
     return writeFileBytes(std::filesystem::path("edited.png"), bytes);
+#endif
 }
 
 cv::Mat loadImage(const std::string& path) {
