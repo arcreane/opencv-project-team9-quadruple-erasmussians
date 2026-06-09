@@ -20,6 +20,7 @@ add_executable(myeditor
     src/ops/unsharpmask.cpp
     src/ops/pencilsketch.cpp
     src/ops/white_balance.cpp
+    src/ops/stitching.cpp
 )
 
 target_include_directories(myeditor PRIVATE

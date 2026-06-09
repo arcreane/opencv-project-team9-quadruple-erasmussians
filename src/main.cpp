@@ -18,6 +18,7 @@
 #include "ops/canny.hpp"
 #include "ops/unsharpmask.hpp"
 #include "ops/pencilsketch.hpp"
+#include "ops/stitching.hpp"
 
 
 #include "ops/threshold.hpp"
@@ -127,6 +128,7 @@ int main(int argc, char** argv) {
     g_ops.push_back(std::make_unique<ThresholdOp>());
     g_ops.push_back(std::make_unique<HistEqOp>());
     g_ops.push_back(std::make_unique<CartoonOp>());
+    g_ops.push_back(std::make_unique<StitchingOp>());
 
     rebuildPreview();
 
