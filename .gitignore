@@ -27,3 +27,5 @@ Thumbs.db
 *.obj
 *.o
 *.dll
+*.pptx
+/.obsidian
