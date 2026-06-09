@@ -13,6 +13,7 @@ void MorphologyOp::setupTrackbars(const std::string& win) {
 
 cv::Mat MorphologyOp::apply(const cv::Mat& src) const {
     // Map slider value to an odd kernel size (1,3,5,...,21)
+    // OpenCV requires odd kernel sizes, map slider with 1+2n formula
     const int ksize = 1 + 2 * std::max(0, kernelSize_);
 
     const int shape = (kernelShape_ == 1) ? cv::MORPH_CROSS
