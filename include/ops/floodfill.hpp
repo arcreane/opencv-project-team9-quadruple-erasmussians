@@ -8,6 +8,9 @@ public:
     void setupTrackbars(const std::string& controlsWindow) override;
     cv::Mat apply(const cv::Mat& src) const override;
 
+    // Flood Fill commits a new state on every click, so it owns its history.
+    bool managesOwnHistory() const override { return true; }
+
     // Mouse clicks on the image window
     static void onMouseClick(int event, int x, int y, int flags, void* userdata);
 

@@ -50,16 +50,27 @@ bool toastActive() {
     return !g_toast.empty() && std::chrono::steady_clock::now() < g_toastUntil;
 }
 
+bool imagesEqual(const cv::Mat& a, const cv::Mat& b) {
+    if (a.size() != b.size() || a.type() != b.type()) return false;
+    cv::Mat diff;
+    cv::absdiff(a, b, diff);
+    return cv::countNonZero(diff.reshape(1)) == 0;
+}
+
 void commitToHistory(const cv::Mat& currentPreviewImage) {
+    // Keep the working image 3-channel BGR so baked effects can be chained
+    cv::Mat state = currentPreviewImage;
+    if (state.channels() == 1) cv::cvtColor(state, state, cv::COLOR_GRAY2BGR);
+
     // Current image state to the Undo stack
-    g_undoStack.push_back(currentPreviewImage.clone());
+    g_undoStack.push_back(state.clone());
     if (g_undoStack.size() > MAX_HISTORY) {
         g_undoStack.erase(g_undoStack.begin());
     }
     // Clear the Redo stack whenever a new action is committed
     g_redoStack.clear();
-    // Update the preview 
-    g_preview = currentPreviewImage.clone();
+    // Update the preview
+    g_preview = state.clone();
 }
 
 void performUndo() {
@@ -177,7 +188,8 @@ int main(int argc, char** argv) {
     std::cout << "MyEditor ready.\n"
               << "  o     : open an image\n"
               << "  n / p : next / previous operation\n"
-              << "  u / r : UNDO / REDO last action\n" 
+              << "  a     : apply current effect (bake it in)\n"
+              << "  u / r : UNDO / REDO last action\n"
               << "  s     : save (choose location)\n"
               << "  q/ESC : quit\n";
     
@@ -197,8 +209,24 @@ int main(int argc, char** argv) {
         const int key = cv::waitKey(20) & 0xFF;
         if (key == 'q' || key == 27) break;
         
+        // Bake the current effect into the working image and record it so it
+        // can be undone. Flood Fill records its own states on click, so skip it.
+        if (key == 'a') {
+            if (!g_ops[g_mode]->managesOwnHistory()) {
+                cv::Mat baked = g_ops[g_mode]->apply(g_preview);
+                if (imagesEqual(baked, g_preview)) {
+                    setToast("Nothing to apply");
+                } else {
+                    commitToHistory(baked);   // updates g_preview + pushes undo state
+                    g_mode = 0;               // show the baked result as-is (Original)
+                    rebuildControls();
+                    cv::setTrackbarPos("Operation", kMainWindow, g_mode);
+                    setToast("Applied");
+                }
+            }
+        }
         // Undo/Redo with 'u' and 'r' keys
-        if (key == 'u') {
+        else if (key == 'u') {
             performUndo();
             render();
         } else if (key == 'r') {
