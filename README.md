@@ -41,6 +41,8 @@ operation, and saving or opening shows a brief on-screen confirmation.
 |-----------|-------------------------------------------------|
 | `o`       | Open an image (file dialog)                      |
 | `n` / `p` | Next / previous operation                       |
+| `a`       | Apply current effect (bake it into the image)    |
+| `u` / `r` | Undo / redo the last applied effect              |
 | `s`       | Save the result (Save As dialog)                |
 | `q` / ESC | Quit                                            |
 

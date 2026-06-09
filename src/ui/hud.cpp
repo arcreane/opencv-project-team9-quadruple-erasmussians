@@ -48,8 +48,8 @@ void drawStatusBar(cv::Mat& frame, const std::string& opName, int index, int tot
     // it entirely, if the preview is too narrow to show it without overlapping
     // the name -- the name always wins.
     const int leftW = textWidth(left, fs, th);
-    const std::string legendFull  = "[u/r] Undo/Redo [n/p] Switch Mode   [o] Open   [s] Save   [q] Quit";
-    const std::string legendShort = "u/r  n/p  o  s  q";
+    const std::string legendFull  = "[a] Apply  [u/r] Undo/Redo  [n/p] Switch Mode   [o] Open   [s] Save   [q] Quit";
+    const std::string legendShort = "a  u/r  n/p  o  s  q";
     auto fits = [&](const std::string& s) {
         return leftW + pad * 3 + textWidth(s, fs, th) <= W - pad;
     };
