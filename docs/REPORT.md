@@ -223,4 +223,3 @@ The limitations above are the ones we are aware about them. But it is a program 
 
 **Tested with.** OpenCV ⟨version — confirm⟩, on Windows 11 and macOS.
 
-**Screenshot index.** Place captured images in `docs/screenshots/` using the filenames marked ▢ throughout this report.
