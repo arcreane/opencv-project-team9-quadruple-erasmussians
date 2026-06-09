@@ -106,7 +106,7 @@ Advanced: Automatic White Balance · Cartoon Effect · Flood Fill.
 
 ## Team & contributions
 
-- Yigit Dagidir
-- Ilayda Baburoglu
-- Sevil Begum Gurcan
-- PinChieh HO
+- Yigit Dagidir 64423
+- Ilayda Baburoglu 64421
+- Sevil Begum Gurcan 64427
+- PinChieh HO 64229
