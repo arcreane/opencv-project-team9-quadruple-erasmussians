@@ -5,8 +5,7 @@
 // Display only.the shell calls them inside render ()
 namespace ui {
 
-void drawStatusBar(cv::Mat& frame, const std::string& opName, int index, int total);
-
+void drawStatusBar(cv::Mat& frame, const std::string& opName, int index, int total, int mode = -1);
 
 void drawToast(cv::Mat& frame, const std::string& msg);
 

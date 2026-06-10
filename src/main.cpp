@@ -115,7 +115,7 @@ void render() {
     
     // The HUD is display-only. drawn on the shown copy here, never on the image
     ui::drawStatusBar(out, g_ops[g_mode]->name(), g_mode,
-                    static_cast<int>(g_ops.size()));
+                static_cast<int>(g_ops.size()), g_mode);
 
     if (toastActive()) ui::drawToast(out, g_toast);
     cv::imshow(kMainWindow, out);

@@ -29,7 +29,7 @@ int textWidth(const std::string& s, double fs, int th) {
 
 namespace ui {
 
-void drawStatusBar(cv::Mat& frame, const std::string& opName, int index, int total) {
+void drawStatusBar(cv::Mat& frame, const std::string& opName, int index, int total, int mode) {
     if (frame.empty()) return;
     const int W = frame.cols, H = frame.rows;
     const int pad = 10;
@@ -37,23 +37,24 @@ void drawStatusBar(cv::Mat& frame, const std::string& opName, int index, int tot
     const int th = 1;
 
     darkenPanel(frame, cv::Rect(0, H - kBarH, W, kBarH), 0.55);
-    const int baseline = H - 9;                      // text baseline inside the bar
+    const int baseline = H - 9;
 
-    // Left: position + operation name (the "where am I" half).
+    // Left: position + operation name
     const std::string left = std::to_string(index + 1) + "/" +
                              std::to_string(total) + "  " + opName;
     cv::putText(frame, left, {pad, baseline}, kFont, fs, kWhite, th, cv::LINE_AA);
 
-    // Right: the key legend, right-aligned. Shrink to a compact form, then drop
-    // it entirely, if the preview is too narrow to show it without overlapping
-    // the name -- the name always wins.
+    // Right: legend - show full on mode 0 (Original), otherwise use smart fallback
     const int leftW = textWidth(left, fs, th);
     const std::string legendFull  = "[a] Apply  [u/r] Undo/Redo  [n/p] Switch Mode   [o] Open   [s] Save   [q] Quit";
     const std::string legendShort = "a  u/r  n/p  o  s  q";
+    
     auto fits = [&](const std::string& s) {
         return leftW + pad * 3 + textWidth(s, fs, th) <= W - pad;
     };
-    const std::string legend = fits(legendFull)  ? legendFull
+    
+    const std::string legend = (mode == 0) ? legendFull                    // Always full on mode 0
+                             : fits(legendFull)  ? legendFull
                              : fits(legendShort) ? legendShort
                                                  : std::string();
     if (!legend.empty()) {
